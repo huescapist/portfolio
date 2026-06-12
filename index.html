@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huescapist | Разработчик</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Темная тема (Void) */
+            --bg-color: #07080a;
+            --bg-gradient: #12151c;
+            --text-color: #d1dae3;
+            --pale-ore: #b8c5d1;
+            --soul-glow: rgba(184, 197, 209, 0.4);
+            --card-bg: rgba(18, 21, 28, 0.6);
+            --border-color: rgba(184, 197, 209, 0.15);
+            --gear-color: #d1dae3;
+            --infection-color: #f28c28;
+            --infection-bg: rgba(20, 10, 5, 0.4);
+        }
+
+        [data-theme="light"] {
+            /* Светлая тема (White Palace) */
+            --bg-color: #f5f0e6;
+            --bg-gradient: #e8dfc8;
+            --text-color: #2c2c2c;
+            --pale-ore: #6b5c43;
+            --soul-glow: rgba(189, 165, 93, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --border-color: rgba(189, 165, 93, 0.4);
+            --gear-color: #2c2c2c;
+            --infection-color: #b55a00;
+            --infection-bg: rgba(242, 140, 40, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Raleway', sans-serif;
+            line-height: 1.6;
+            background-image: radial-gradient(circle at center, var(--bg-gradient) 0%, var(--bg-color) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease, background-image 0.5s ease;
+        }
+
+        /* --- ФОНОВЫЕ ЭФФЕКТЫ --- */
+        #particles-js {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+        }
+
+        .light-theme-effects {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        [data-theme="light"] .light-theme-effects { display: block; }
+
+        .radiance-aura {
+            position: absolute; top: -30%; left: 50%; transform: translateX(-50%);
+            width: 150vw; height: 100vh;
+            background: radial-gradient(circle at top center, rgba(255, 235, 150, 0.15) 0%, transparent 60%);
+            animation: aura-pulse 4s ease-in-out infinite alternate;
+        }
+        @keyframes aura-pulse { 0% { opacity: 0.5; } 100% { opacity: 1; transform: translateX(-50%) scale(1.05); } }
+
+        .radiance-beams {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: repeating-linear-gradient(
+                75deg,
+                transparent 0%, transparent 5%,
+                rgba(255, 235, 150, 0.04) 10%, rgba(255, 235, 150, 0.08) 15%,
+                transparent 20%
+            );
+            animation: beams-move 40s linear infinite;
+        }
+        @keyframes beams-move { 0% { background-position: 0 0; } 100% { background-position: 1000px 0; } }
+
+        .sawblade {
+            position: absolute; font-size: 400px;
+            color: rgba(189, 165, 93, 0.08);
+            animation: saw-spin 3s linear infinite;
+            filter: blur(2px);
+            user-select: none;
+        }
+        .sb-1 { top: -150px; right: -150px; animation-direction: reverse; }
+        .sb-2 { bottom: -200px; left: -100px; font-size: 500px; animation-duration: 4.5s; }
+        @keyframes saw-spin { 100% { transform: rotate(360deg); } }
+
+        /* --- ОСНОВНОЙ КОНТЕНТ --- */
+        .container {
+            max-width: 900px; margin: 0 auto; padding: 40px 20px 60px 20px; position: relative; z-index: 2;
+        }
+
+        h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* НАВИГАЦИЯ */
+        .hk-nav {
+            display: flex; justify-content: center; gap: 40px; margin-bottom: 60px;
+            font-family: 'Cinzel', serif; letter-spacing: 1.5px;
+        }
+        .hk-nav a {
+            text-decoration: none; color: var(--pale-ore); opacity: 0.6;
+            font-size: 1.05rem; transition: all 0.3s ease;
+        }
+        .hk-nav a:hover {
+            opacity: 1; text-shadow: 0 0 10px var(--soul-glow); color: var(--text-color);
+        }
+
+        /* Шестеренка настроек */
+        #gear {
+            position: fixed; top: 20px; left: 20px; font-size: 30px; cursor: pointer; z-index: 1000;
+            transition: transform 0.3s ease; color: var(--gear-color); text-shadow: 0 0 10px var(--soul-glow);
+            user-select: none;
+        }
+        #gear:hover { transform: rotate(90deg); }
+
+        /* Окно настроек */
+        #settings {
+            display: none; position: fixed; top: 60px; left: 20px;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 20px; border-radius: 4px; z-index: 999;
+            backdrop-filter: blur(5px); width: 220px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        #settings button {
+            width: 100%; padding: 10px; margin-bottom: 15px; cursor: pointer;
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-color);
+            font-family: 'Cinzel', serif; transition: all 0.3s ease; font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        #settings button:hover { background: var(--pale-ore); color: var(--bg-color); box-shadow: 0 0 10px var(--soul-glow); }
+        .vol-container { text-align: center; font-size: 0.8rem; font-family: 'Cinzel', serif; opacity: 0.8; letter-spacing: 1px; }
+        #vol { width: 100%; cursor: pointer; margin-top: 5px; accent-color: var(--pale-ore); }
+
+        /* Секция Hero */
+        .hero { text-align: center; padding: 2vh 0 4vh 0; }
+        .hero h1 { font-size: 3.5rem; text-shadow: 0 0 15px var(--soul-glow); margin-bottom: 10px; color: #fff; }
+        [data-theme="light"] .hero h1 { color: var(--text-color); }
+        .hero p.subtitle { font-size: 1.1rem; letter-spacing: 4px; color: var(--pale-ore); margin-bottom: 20px; font-family: 'Cinzel', serif; }
+        
+        /* Разделитель */
+        .separator {
+            width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--pale-ore), transparent);
+            margin: 50px auto; position: relative;
+        }
+        .separator::before {
+            content: '♦'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg);
+            background: var(--bg-color); padding: 0 12px; font-size: 0.8rem; color: var(--pale-ore);
+            transition: background-color 0.5s ease;
+        }
+
+        section { margin-bottom: 50px; scroll-margin-top: 40px; }
+        section h2 { text-align: center; font-size: 1.8rem; margin-bottom: 40px; text-shadow: 0 0 10px var(--soul-glow); }
+
+        /* Карточки Навыков */
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
+        .skill-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 25px; transition: all 0.4s ease; text-align: center; backdrop-filter: blur(2px);
+        }
+        .skill-card:hover { transform: translateY(-5px); box-shadow: 0 0 15px var(--soul-glow); border-color: var(--pale-ore); }
+        .skill-card h3 { border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; color: #fff; }
+        [data-theme="light"] .skill-card h3 { color: var(--text-color); }
+
+        /* Карточка Проекта (Архивы) */
+        .project-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 30px; transition: all 0.4s ease; text-align: left; backdrop-filter: blur(2px);
+            max-width: 700px; margin: 0 auto; position: relative; overflow: hidden;
+        }
+        .project-card::before {
+            content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%;
+            background: var(--pale-ore); box-shadow: 0 0 10px var(--soul-glow);
+        }
+        .project-card:hover { transform: translateY(-5px); box-shadow: 0 0 20px var(--soul-glow); border-color: var(--pale-ore); }
+        .project-card h3 { font-size: 1.4rem; color: #fff; margin-bottom: 5px; text-transform: none; font-family: 'Cinzel', serif; letter-spacing: 1px; }
+        [data-theme="light"] .project-card h3 { color: var(--text-color); }
+        .project-tech { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--pale-ore); opacity: 0.8; margin-bottom: 15px; letter-spacing: 1px; }
+        .project-card p { font-size: 0.95rem; opacity: 0.85; line-height: 1.7; }
+        
+        /* Зараженный код */
+        .infected-code-box {
+            background: var(--infection-bg); border: 1px solid var(--infection-color);
+            padding: 25px; margin: 40px 0; border-radius: 2px;
+            box-shadow: 0 0 15px rgba(242, 140, 40, 0.05); transition: all 0.5s ease;
+        }
+        .infected-code-box h3 {
+            color: var(--infection-color); font-size: 1.1rem; margin-bottom: 12px;
+            text-shadow: 0 0 8px rgba(242, 140, 40, 0.2); font-weight: 600;
+        }
+        .infected-code-box p { font-size: 0.95rem; font-style: italic; opacity: 0.85; line-height: 1.7; }
+
+        /* Гнездо Рогача */
+        .contact-section { text-align: center; padding: 20px 0; scroll-margin-top: 40px; }
+        .contact-section h2 { font-size: 2.2rem; margin-bottom: 20px; }
+        .contact-description { max-width: 620px; margin: 0 auto 35px auto; opacity: 0.85; font-size: 1.05rem; font-weight: 300; }
+        
+        .btn-call {
+            display: inline-block; padding: 14px 35px; border: 1px solid var(--pale-ore);
+            color: var(--text-color); text-decoration: none; font-family: 'Cinzel', serif;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.95rem;
+            transition: all 0.3s ease; background: transparent; position: relative;
+        }
+        .btn-call:hover { background: var(--pale-ore); color: var(--bg-color); box-shadow: 0 0 20px var(--soul-glow); }
+
+        footer { text-align: center; opacity: 0.5; font-size: 0.9rem; font-family: 'Cinzel', serif; padding: 60px 0 20px 0; }
+        footer p.motto { font-style: italic; margin-bottom: 8px; font-size: 0.95rem; letter-spacing: 1px; }
+        footer p.copy { font-size: 0.8rem; letter-spacing: 1px; }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.6rem; }
+            .contact-section h2 { font-size: 1.8rem; }
+            .hk-nav { gap: 15px; font-size: 0.9rem; flex-wrap: wrap; }
+            .project-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="light-theme-effects">
+        <div class="radiance-beams"></div>
+        <div class="radiance-aura"></div>
+        <div class="sawblade sb-1">⚙️</div>
+        <div class="sawblade sb-2">⚙️</div>
+    </div>
+
+    <canvas id="particles-js"></canvas>
+
+    <div id="gear" onclick="toggleMenu()">⚙️</div>
+    <div id="settings">
+        <button onclick="switchTheme()">Сменить тему</button>
+        <button id="music-btn" onclick="toggleMusic()">Включить музыку</button>
+        <div class="vol-container">
+            Громкость
+            <input type="range" id="vol" min="0" max="1" step="0.1" value="0.4" oninput="setVolume()">
+        </div>
+    </div>
+
+    <audio id="player" loop>
+        <source id="src" src="city_of_tears.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+        
+        <!-- НАВИГАЦИЯ -->
+        <nav class="hk-nav">
+            <a href="#about">О себе</a>
+            <a href="#charms">Амулеты</a>
+            <a href="#archives">Архивы</a>
+            <a href="#invoke">Призыв</a>
+        </nav>
+
+        <header class="hero" id="about">
+            <h1>Huescapist</h1>
+            <p class="subtitle">Треш-кодер • Исследователь Бездны</p>
+            <p style="max-width: 650px; margin: 0 auto; opacity: 0.85; font-size: 1.05rem; font-weight: 300;">
+                Приветствую, путник. Я создаю архитектуры, которые пугают академиков, но функционируют вопреки законам логики. Мой код не идеален, но он побеждает баги так же беспощадно, как старый гвоздь рассекает Чуму Халлоунеста.
+            </p>
+        </header>
+
+        <div class="separator"></div>
+
+        <section id="charms">
+            <h2>Снаряженные Амулеты</h2>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <h3>C#</h3>
+                    <p>Тяжелый и надежный гвоздь. Идеально сбалансирован для битвы с крупными чудовищами корпоративного бэкенда.</p>
+                </div>
+                <div class="skill-card">
+                    <h3>Python</h3>
+                    <p>Алхимия душ. Изящные заклинания и быстрые автоматизации, сотворенные из гибких абстракций.</p>
+                </div>
+                <div class="skill-card">
+                    <h3>JavaScript</h3>
+                    <p>Сущность Пустоты. Хаотичная материя, способная связать фронтенд и бэкенд в единый организм.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="separator"></div>
+
+        <section id="archives">
+            <h2>Архивы</h2>
+            
+            <!-- Карточка "Этот сайт" -->
+            <div class="project-card">
+                <h3>Этот сайт</h3>
+                <div class="project-tech">HTML / CSS / JS / Магия Бездны</div>
+                <p>Интерактивный гримуар-портфолио, созданный с нуля. Содержит динамические частицы Души, переключение реальностей (Темная тема / Белый Дворец с эксклюзивными эффектами) и встроенную музыкальную шкатулку для полного погружения.</p>
+            </div>
+
+        </section>
+
+        <div class="infected-code-box">
+            <h3>ОСОБОЕ ПРИМЕЧАНИЕ: ЗАРАЖЕННЫЙ КОД</h3>
+            <p>«Нет цены слишком высокой, нет затрат слишком великих за компиляцию без ошибок в консоли. Пусть код грязен и полон тайн, но пока он выполняет свое предназначение — Высший Разум доволен». — Манифест Халлоунестского Программиста.</p>
+        </div>
+
+        <div class="separator"></div>
+
+        <section class="contact-section" id="invoke">
+            <h2>ГНЕЗДО РОГАЧА</h2>
+            <p class="contact-description">
+                Если вашему королевству нужен разработчик, готовый погрузиться в пучины легаси и вернуть проект к жизни любой ценой — отправьте ментальный сигнал.
+            </p>
+            <a href="mailto:huescapist@gmail.com" class="btn-call">ПРИЗВАТЬ HUESCAPIST</a>
+        </section>
+
+        <div class="separator"></div>
+        
+        <footer>
+            <p class="motto">«Создано из Пустоты и Души»</p>
+            <p class="copy">© 2026 HUESCAPIST. Все права (и баги) защищены.</p>
+        </footer>
+    </div>
+
+    <script>
+        const player = document.getElementById('player');
+        const audioSrc = document.getElementById('src');
+        const menu = document.getElementById('settings');
+        const musicBtn = document.getElementById('music-btn');
+
+        player.volume = document.getElementById('vol').value;
+
+        function toggleMenu() {
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+        
+        function switchTheme() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+            
+            const wasPlaying = !player.paused;
+            audioSrc.src = isLight ? 'city_of_tears.mp3' : 'radiance.mp3';
+            
+            player.load();
+            if (wasPlaying) {
+                player.play().catch(e => {
+                    console.log("Автоплей заблокирован браузером", e);
+                    musicBtn.innerText = "Включить музыку";
+                });
+            }
+            updateParticleColor();
+        }
+
+        function toggleMusic() {
+            if (player.paused) {
+                player.play().then(() => {
+                    musicBtn.innerText = "Выключить музыку";
+                }).catch(e => {
+                    console.log("Файлы отсутствуют или заблокированы:", e);
+                    musicBtn.innerText = "Ошибка (Файл не найден)";
+                    alert("Музыкальная шкатулка пуста! Чтобы музыка заиграла, поместите файлы 'city_of_tears.mp3' и 'radiance.mp3' в ту же папку, где находится этот сайт.");
+                });
+            } else {
+                player.pause();
+                musicBtn.innerText = "Включить музыку";
+            }
+        }
+
+        function setVolume() { player.volume = document.getElementById('vol').value; }
+
+        const canvas = document.getElementById('particles-js');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        let particleColor = 'rgba(255, 255, 255, 0.8)';
+        let shadowColor = 'rgba(184, 197, 209, 0.9)';
+
+        function updateParticleColor() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                particleColor = 'rgba(189, 165, 93, 0.8)'; shadowColor = 'rgba(255, 215, 0, 0.6)';
+            } else {
+                particleColor = 'rgba(255, 255, 255, 0.8)'; shadowColor = 'rgba(184, 197, 209, 0.9)';
+            }
+        }
+
+        class Particle {
+            constructor() { this.reset(); this.y = Math.random() * height; }
+            reset() {
+                this.x = Math.random() * width; this.y = height + Math.random() * 100;
+                this.size = Math.random() * 2 + 0.6; this.speedY = -(Math.random() * 0.4 + 0.15);
+                this.speedX = (Math.random() - 0.5) * 0.4; this.alpha = Math.random() * 0.6 + 0.2;
+            }
+            update() {
+                this.y += this.speedY; this.x += this.speedX; this.speedX += (Math.random() - 0.5) * 0.04;
+                if(this.speedX > 0.4) this.speedX = 0.4; if(this.speedX < -0.4) this.speedX = -0.4;
+                if (this.y < 0 || this.alpha <= 0) this.reset();
+            }
+            draw() {
+                ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = particleColor; ctx.shadowBlur = 6; ctx.shadowColor = shadowColor;
+                ctx.fill(); ctx.restore();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 45; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            for (let p of particles) { p.update(); p.draw(); }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
