@@ -165,11 +165,13 @@
         .skill-card h3 { border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; color: #fff; }
         [data-theme="light"] .skill-card h3 { color: var(--text-color); }
 
-        /* Карточка Проекта (Архивы) */
+        /* Секция Архивов (Проекты) */
+        .archive-grid { display: flex; flex-direction: column; gap: 30px; max-width: 700px; margin: 0 auto; }
+        
         .project-card {
             background: var(--card-bg); border: 1px solid var(--border-color);
             padding: 30px; transition: all 0.4s ease; text-align: left; backdrop-filter: blur(2px);
-            max-width: 700px; margin: 0 auto; position: relative; overflow: hidden;
+            position: relative; overflow: hidden; text-decoration: none; color: inherit; display: block;
         }
         .project-card::before {
             content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%;
@@ -194,7 +196,7 @@
         .infected-code-box p { font-size: 0.95rem; font-style: italic; opacity: 0.85; line-height: 1.7; }
 
         /* Гнездо Рогача */
-        .contact-section { text-align: center; padding: 20px 0; scroll-margin-top: 40px; }
+        .contact-section { text-align: center; padding: 20px 0; scroll-margin-top: 40px; position: relative; }
         .contact-section h2 { font-size: 2.2rem; margin-bottom: 20px; }
         .contact-description { max-width: 620px; margin: 0 auto 35px auto; opacity: 0.85; font-size: 1.05rem; font-weight: 300; }
         
@@ -202,9 +204,38 @@
             display: inline-block; padding: 14px 35px; border: 1px solid var(--pale-ore);
             color: var(--text-color); text-decoration: none; font-family: 'Cinzel', serif;
             text-transform: uppercase; letter-spacing: 2px; font-size: 0.95rem;
-            transition: all 0.3s ease; background: transparent; position: relative;
+            transition: all 0.3s ease; background: transparent; position: relative; cursor: pointer;
+            user-select: none;
         }
         .btn-call:hover { background: var(--pale-ore); color: var(--bg-color); box-shadow: 0 0 20px var(--soul-glow); }
+
+        /* --- ВСПЛЫВАЮЩЕЕ МЕНЮ ПРИЗЫВА (Ментальный сигнал) --- */
+        .summon-modal {
+            display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%);
+            width: 320px; height: 320px; background: var(--card-bg); border: 2px solid var(--border-color);
+            padding: 20px; z-index: 500; backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: modal-fade 0.3s ease-out forwards;
+        }
+        @keyframes modal-fade { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        
+        .summon-grid {
+            display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr);
+            gap: 12px; width: 100%; height: 100%;
+        }
+        .summon-item {
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            border: 1px solid var(--border-color); background: rgba(0,0,0,0.2);
+            color: var(--text-color); text-decoration: none; padding: 10px;
+            font-size: 0.9rem; font-family: 'Raleway', sans-serif; transition: all 0.3s ease;
+            font-weight: 400;
+        }
+        .summon-item:hover {
+            background: rgba(184, 197, 209, 0.1); border-color: var(--pale-ore);
+            box-shadow: inset 0 0 10px var(--soul-glow), 0 0 10px var(--soul-glow);
+        }
+        /* Особый стиль для статичной плашки почты */
+        span.summon-item:hover { cursor: default; }
 
         footer { text-align: center; opacity: 0.5; font-size: 0.9rem; font-family: 'Cinzel', serif; padding: 60px 0 20px 0; }
         footer p.motto { font-style: italic; margin-bottom: 8px; font-size: 0.95rem; letter-spacing: 1px; }
@@ -285,14 +316,23 @@
 
         <section id="archives">
             <h2>Архивы</h2>
-            
-            <!-- Карточка "Этот сайт" -->
-            <div class="project-card">
-                <h3>Этот сайт</h3>
-                <div class="project-tech">HTML / CSS / JS / Магия Бездны</div>
-                <p>Интерактивный гримуар-портфолио, созданный с нуля. Содержит динамические частицы Души, переключение реальностей (Темная тема / Белый Дворец с эксклюзивными эффектами) и встроенную музыкальную шкатулку для полного погружения.</p>
-            </div>
+            <div class="archive-grid">
+                
+                <!-- Карточка "Этот сайт" -->
+                <a href="https://huescapist.github.io/portfolio/" target="_blank" class="project-card">
+                    <h3>Этот сайт</h3>
+                    <div class="project-tech">HTML / CSS / JS / Магия Бездны</div>
+                    <p>Интерактивный гримуар-портфолио, созданный с нуля. Содержит динамические частицы Души, переключение реальностей (Темная тема / Белый Дворец с эксклюзивными эффектами) и встроенную музыкальную шкатулку для полного погружения.</p>
+                </a>
 
+                <!-- Новая Карточка "Труппа Гримма" -->
+                <a href="https://huescapist.github.io/troupe/" target="_blank" class="project-card">
+                    <h3>The Grimm Troupe Ritual</h3>
+                    <div class="project-tech">JavaScript / CSS Animations / Хаос Алого Пламени</div>
+                    <p>Экспериментальный веб-ритуал, посвященный встрече Труппы Гримма. Мрачная, багровая эстетика, наполненная динамическим огнем и хаотичными скриптами, которые заставляют элементы интерфейса танцевать под аккорды алого кошмара.</p>
+                </a>
+
+            </div>
         </section>
 
         <div class="infected-code-box">
@@ -302,16 +342,28 @@
 
         <div class="separator"></div>
 
+        <!-- Раздел Контактов (Гнездо Рогача) -->
         <section class="contact-section" id="invoke">
             <h2>ГНЕЗДО РОГАЧА</h2>
             <p class="contact-description">
                 Если вашему королевству нужен разработчик, готовый погрузиться в пучины легаси и вернуть проект к жизни любой ценой — отправьте ментальный сигнал.
             </p>
-            <a href="mailto:huescapist@gmail.com" class="btn-call">ПРИЗВАТЬ HUESCAPIST</a>
+            <div class="btn-call" onclick="toggleSummonMenu(event)">ПРИЗВАТЬ HUESCAPIST</div>
+            
+            <!-- Квадратное меню 320x320 с 4 прямоугольниками внутри -->
+            <div class="summon-modal" id="summonModal">
+                <div class="summon-grid">
+                    <a href="https://github.com/huescapist" target="_blank" class="summon-item">Мой Гитхаб</a>
+                    <a href="https://t.me/hatredmode" target="_blank" class="summon-item">Мой ТГ</a>
+                    <span class="summon-item">Моя почта:<br>huescapist@gmail.com</span>
+                    <a href="https://steamcommunity.com/profiles/76561199205620872/" target="_blank" class="summon-item">Мой Стим, если интересуетесь</a>
+                </div>
+            </div>
         </section>
 
         <div class="separator"></div>
         
+        <!-- Подвал -->
         <footer>
             <p class="motto">«Создано из Пустоты и Души»</p>
             <p class="copy">© 2026 HUESCAPIST. Все права (и баги) защищены.</p>
@@ -323,11 +375,28 @@
         const audioSrc = document.getElementById('src');
         const menu = document.getElementById('settings');
         const musicBtn = document.getElementById('music-btn');
+        const summonModal = document.getElementById('summonModal');
 
         player.volume = document.getElementById('vol').value;
 
         function toggleMenu() {
             menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Логика открытия/закрытия меню призыва
+        function toggleSummonMenu(event) {
+            event.stopPropagation();
+            summonModal.style.display = (summonModal.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Закрываем окошки, если кликнули мимо них
+        window.onclick = function(event) {
+            if (!event.target.matches('#gear') && !menu.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+            if (!event.target.matches('.btn-call') && !summonModal.contains(event.target)) {
+                summonModal.style.display = 'none';
+            }
         }
         
         function switchTheme() {
